@@ -1,0 +1,11 @@
+[Unit]
+Description=Linux-GPIB configuration service
+
+After=dev-gpib%i.device
+Requires=dev-gpib%i.device
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+TimeoutSec=30
+ExecStart=/usr/sbin/gpib_config --minor=%i

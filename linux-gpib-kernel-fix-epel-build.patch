@@ -1,0 +1,11 @@
+--- old/linux-gpib-kernel/drivers/gpib/fmh_gpib/fmh_gpib.c	2018-03-16 17:27:01.000000000 -0400
++++ new/linux-gpib-kernel/drivers/gpib/fmh_gpib/fmh_gpib.c	2018-06-13 20:25:55.170338863 -0400
+@@ -43,6 +43,8 @@
+ irqreturn_t fmh_gpib_internal_interrupt(gpib_board_t *board);
+ static struct platform_driver fmh_gpib_platform_driver;
+ 
++extern struct device_node *of_find_node_by_path(const char *path);
++
+ // wrappers for interface functions
+ int fmh_gpib_read(gpib_board_t *board, uint8_t *buffer, size_t length, int *end, size_t *bytes_read)
+ {
