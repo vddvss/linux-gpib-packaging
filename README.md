@@ -10,7 +10,7 @@ the logic to do that. The package also tries to adhere to the
 # Installation
 
 ```bash
-sudo dnf copr enable <name>/linux-gpib
+sudo dnf copr enable vddvss/linux-gpib
 
 # For a general installation that will require you to edit the gpib.conf file
 sudo dnf install dkms-linux-gpib linux-gpib
@@ -27,7 +27,7 @@ sudo dnf install dkms-linux-gpib linux-gpib linux-gpib-defaults-ni-gpib-usb
 **IMPORTANT**: If you are using the HP/Agilent/Keysight 82357A, 82357B, 82341C,
 82341D, or 82350A, or the NI GPIB-USB-B, you will also need to install the
 appropriate firmware package available at
-<https://github.com/<user>/linux-gpib-firmware-rpms>. No firmware is needed for
+https://github.com/vddvss/linux-gpib-firmware-packaging. No firmware is needed for
 the NI-GPIB-USB-HS/HS+.
 
 ## Default Configurations
@@ -133,6 +133,7 @@ sudo modprobe -r ni_usb_gpib gpib_common
 The priority of this `udev` rule must be greater than 60 but less than 70.
 
 # Build Status
+[![build status](https://copr.fedorainfracloud.org/coprs/vddvss/linux-gpib/package/linux-gpib/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/vddvss/linux-gpib/package/linux-gpib)
 
 # Credits
 There are quite a few installation guides and packaging specfiles for Linux-GPIB
