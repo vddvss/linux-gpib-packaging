@@ -45,7 +45,7 @@
 
 Name:           linux-gpib
 Version:        4.1.0
-Release:        1.%{svndate}svn%{svnrev}%{?dist}
+Release:        2.%{svndate}svn%{svnrev}%{?dist}
 Summary:        Linux GPIB (IEEE-488) userspace library and programs
 
 License:        GPLv2+
@@ -647,5 +647,7 @@ udevadm control --reload > /dev/null 2>&1 || :
 
 
 %changelog
+* Fri Feb 1 2019 Colin Samples <colin-dot-samples-at-gmail-dot-com> - 4.1.0-2.20180529svn1753
+- Increment release number to fix F29 copr
 * Sat Jun 16 2018 Colin Samples <colin-dot-samples-at-gmail-dot-com> - 4.1.0-1.20180529svn1753
 - Initial release
