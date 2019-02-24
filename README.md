@@ -5,23 +5,14 @@ GPIB (IEEE-488) adapters.
 These are targeted at Fedora and RHEL/CentOS 7, but they can probably be made to
 work with SUSE or other RPM distros, though I haven't bothered to put in all of
 the logic to do that. The package also tries to adhere to the
-[Fedora packaging guidelines](https://fedoraproject.org/wiki/Packaging:Guidelines).
+[Fedora packaging guidelines](https://docs.fedoraproject.org/en-US/packaging-guidelines/).
 
 # Installation
 
 ```bash
 sudo dnf copr enable vddvss/linux-gpib
 
-# For a general installation that will require you to edit the gpib.conf file
 sudo dnf install dkms-linux-gpib linux-gpib
-
-# To include a gpib.conf file set up for Agilent/Keysight 82357A/B
-# NOTE: you will also need to install the firmware package
-sudo dnf install dkms-linux-gpib linux-gpib linux-gpib-defaults-agilent-82357a
-
-# To include a gpib.conf file set up for NI-GPIB-USB-B/HS/HS+
-# NOTE: for the NI-GPIB-USB-B, you will also need to install the firmware package
-sudo dnf install dkms-linux-gpib linux-gpib linux-gpib-defaults-ni-gpib-usb
 ```
 
 **IMPORTANT**: If you are using the HP/Agilent/Keysight 82357A, 82357B, 82341C,
@@ -29,16 +20,6 @@ sudo dnf install dkms-linux-gpib linux-gpib linux-gpib-defaults-ni-gpib-usb
 appropriate firmware package available at
 https://github.com/vddvss/linux-gpib-firmware-packaging. No firmware is needed for
 the NI-GPIB-USB-HS/HS+.
-
-## Default Configurations
-The repo contains the below packages with default configuration files for
-popular USB GPIB adapters. For other configurations, you will need to edit the
-`gpib.conf` file as 
-
-| Adapter                   | Package Name                         |
-| ------------------------- | ------------------------------------ |
-| Agilent/Keysight 82357A/B | `linux-gpib-defaults-agilent-82357a` |
-| NI-GPIB-USB-B/HS/HS+      | `linux-gpib-defaults-ni-gpib-usb`    |
 
 ## Extra Packages
 The repo also contains bindings, documentation, and development packages:
@@ -49,23 +30,18 @@ The repo also contains bindings, documentation, and development packages:
 | Extra documentation | `linux-gpib-doc`      |
 | Guile 1.8           | `guile18-linux-gpib`  |
 | Perl                | `perl-LinuxGpib`      |
+| PHP                 | `php-linux-gpib`      |
 | Python 2            | `python2-linux-gpib`  |
 | Python 3            | `python3-linux-gpib`  |
 | Tcl                 | `tcl-linux-gpib`      |
 
 # Device setup
 These packages include new `udev` rules and an updated device initialization
-process. When used with the `linux-gpib-defaults-*` packages, the device setup
-should Just Work when using a single USB adapter, and the new rules should allow
-greater flexibility when using multiple USB adapters.
+process using `systemd`.
 
 If you have more than one adapter connected or if you want to change the minor
 number for the gpib device node (e.g. for `/dev/gpib1`, the minor number is 1),
-you will first need to edit the `gpib.conf` file. Details on this are available
-[here](https://linux-gpib.sourceforge.io/doc_html/configuration-gpib-conf.html)
-and [here](https://linux-gpib.sourceforge.io/doc_html/supported-hardware.html).
-
-You will also need to add a custom `udev` rule in `/etc/udev/rules.d` to connect
+you will also need to add a custom `udev` rule in `/etc/udev/rules.d` to connect
 the device to the minor number. The priority of the `udev` rule must be less
 than 60.
 
@@ -131,6 +107,15 @@ sudo modprobe -r ni_usb_gpib gpib_common
 ```
 
 The priority of this `udev` rule must be greater than 60 but less than 70.
+
+# Changelog
+
+Version 4.2.0 of the upstream driver changed the device initialization process
+to allow USB adapters to be used without editing the `gpib.conf` file. Prior
+versions of this repo included the `linux-gpib-defaults-agilent-82357a` and
+`linux-gpib-defaults-ni-gpib-usb` packages, which changed this file to set the
+default adapter.  These packages are no longer needed and have been removed from
+the repository.
 
 # Build Status
 [![build status](https://copr.fedorainfracloud.org/coprs/vddvss/linux-gpib/package/linux-gpib/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/vddvss/linux-gpib/package/linux-gpib)

@@ -1,14 +1,23 @@
+%if 0%{?el8}
+%bcond_with docs
+%bcond_with guile
+%else
 %bcond_without docs
 %bcond_without guile
+%endif
 %bcond_without perl
+%if 0%{?rhel}
 %bcond_with php
+%else
+%bcond_without php
+%endif
 %bcond_without python2
 %bcond_without python3
 %bcond_without tcl
 
 
-%global svnrev 1753
-%global svndate 20180529
+%global svnrev 1809
+%global svndate 20190107
 
 %global _hardened_build 1
 
@@ -21,18 +30,15 @@
 
 %{?with_perl:%global perlname LinuxGpib}
 
-%if %{with php}
-    # The linux-gpib driver only supports PHP 5.x, but Fedora ships with 7.X
-    %{error:PHP support is currently broken.}
-    
-    # from: https://fedoraproject.org/wiki/Packaging:PHP
-    %global php_apiver \
-        %((echo 0; php -i 2>/dev/null | sed -n 's/^PHP API => //p') | tail -1)
-    %global php_extdir \
-        %(php-config --extension-dir 2>/dev/null || echo "undefined")
-    %global php_version \
-        %(php-config --version 2>/dev/null || echo 0)
-%endif
+#%%if %%{with php}
+    ## from: https://docs.fedoraproject.org/en-US/packaging-guidelines/PHP/
+    #%%global php_apiver \
+        #%%((echo 0; php -i 2>/dev/null | sed -n 's/^PHP API => //p') | tail -1)
+    #%%global php_extdir \
+        #%%(php-config --extension-dir 2>/dev/null || echo "undefined")
+    #%%global php_version \
+        #%%(php-config --version 2>/dev/null || echo 0)
+#%%endif
 
 %if %{with tcl}
     # this is hacky, since the copr buildroot doesn't currently provide tclsh
@@ -44,15 +50,15 @@
 %endif
 
 Name:           linux-gpib
-Version:        4.1.0
-Release:        2.%{svndate}svn%{svnrev}%{?dist}
+Version:        4.2.0
+Release:        1.%{svndate}svn%{svnrev}%{?dist}
 Summary:        Linux GPIB (IEEE-488) userspace library and programs
 
 License:        GPLv2+
 URL:            http://linux-gpib.sourceforge.net/
 
 # The source for this package was pulled from upstream's vcs. Use the
-# below commands to generate the tarball or use the SourceForge website.
+# below commands to generate the zip or use the SourceForge website.
 # We use zip instead of tar.gz since that is what is on SourceForge
 #  $ svn export -r <svnrev> https://svn.code.sf.net/p/linux-gpib/code/trunk linux-gpib-code-<svnrev>-trunk
 #  $ zip -r linux-gpib-code-<svnrev>-trunk.zip linux-gpib-code-<svnrev>-trunk
@@ -60,8 +66,9 @@ Source0:        %{name}-code-%{svnrev}-trunk.zip
 
 Source1:        %{name}-docs.xml
 Source2:        60-%{name}-adapter.rules
-Source3:        %{name}-config@.service
+Source3:        %{name}-config@.service.in
 Source4:        dkms-%{name}.conf.in
+Source5:        %{name}-config-systemd
 
 # We don't need to mknod since we can let the driver and systemd take care of it
 Patch0:         %{name}-nodevnodes.patch
@@ -82,14 +89,26 @@ BuildRequires:  libtool
 
 BuildRequires:  sed
 
+BuildRequires:  gcc
 BuildRequires:  flex
 BuildRequires:  bison
 
 BuildRequires:  libxslt
+%if 0%{?el8}
+BuildRequires:  docbook-style-xsl
+%else
 BuildRequires:  docbook5-style-xsl
+%endif
 
 %{?systemd_requires}
 BuildRequires:  systemd
+
+# As of release 4.2, the driver has changed the configuation system and no
+# longer needs the default packages to work
+Provides:       %{name}-defaults-agilent-82357a = %{version}-%{release}
+Obsoletes:      %{name}-defaults-agilent-82357a < %{version}-%{release}
+Provides:       %{name}-defaults-ni-gpib-usb = %{version}-%{release}
+Obsoletes:      %{name}-defaults-ni-gpib-usb < %{version}-%{release}
 
 %description
 The Linux GPIB package provides support for GPIB (IEEE-488) hardware.
@@ -105,54 +124,6 @@ Requires:       %{name}%{?_isa} = %{version}-%{release}
 Development files for %{name}.
 
 
-%package defaults-agilent-82357a
-Summary:        Default configuration for a Agilent 82357A/B or related adapter
-
-BuildArch:      noarch
-Requires:       %{name} = %{version}-%{release}
-Conflicts:      %{name}-defaults-ni-gpib-usb
-
-%description defaults-agilent-82357a
-Provides a default configuration for the the following adapters:
-
-    - Agilent/Keysight 82357A
-    - Agilent/Keysight 82357B
-    - Beiming Technologies F82357
-    - Beiming Technologies S82357
-
-On install, this modifies upstream's default GPIB configuration file to set up
-one adapter at /dev/gpib0, so installation should Just Work. It also sets the
-adapter's name (for use with ibfind()) to "keysight-usb". It preserves
-upstream's other defaults, which set the primary and secondary addresses to 0,
-the timeout to 3 seconds, reads to terminate on '\n', EOI to be asserted on
-writes, and the adapter as the system controller.
-
-
-%package defaults-ni-gpib-usb
-Summary:        Default configuration for a NI-GPIB-USB or related adapter
-
-BuildArch:      noarch
-Requires:       %{name} = %{version}-%{release}
-Conflicts:      %{name}-defaults-agilent-82357a
-
-%description defaults-ni-gpib-usb
-Provides a default configuration for the the following adapters:
-
-    - Keithley KUSB-488
-    - Keithley KUSB-488A
-    - Measurement Computing (Computer Boards) USB-488
-    - National Instruments GPIB-USB-B
-    - National Instruments GPIB-USB-HS
-    - National Instruments GPIB-USB-HS+
-
-On install, this modifies upstream's default GPIB configuration file to set up
-one adapter at /dev/gpib0, so installation should Just Work. It also sets the
-adapter's name (for use with ibfind()) to "ni-usb". It preserves
-upstream's other defaults, which set the primary and secondary addresses to 0,
-the timeout to 3 seconds, reads to terminate on '\n', EOI to be asserted on
-writes, and the adapter as the system controller.
-
-
 %package -n dkms-%{name}
 Summary:        Linux GPIB (IEEE-488) driver
 
@@ -163,12 +134,15 @@ BuildArch:      noarch
 #ExclusiveArch:  ????
 
 Requires:           dkms
+Requires:           kernel-headers
+Requires:           kernel-devel
+Requires:           gcc
+Requires:           make
 Requires(post):     /sbin/ldconfig
 Requires(postun):   /sbin/ldconfig
 
-BuildRequires:      kmod
-BuildRequires:      kernel-headers
 BuildRequires:      kernel-devel
+BuildRequires:      kmod
 BuildRequires:      elfutils-libelf-devel
 
 %description -n dkms-%{name}
@@ -299,18 +273,6 @@ sed -e 's/__VERSION_STRING/%{version}/g' %{SOURCE4} > dkms.conf
 popd
 
 %build
-pushd %{name}-kernel
-autoreconf -vif
-
-# With dkms, we don't actually distribute the binary kernel modules, but
-# this invokation of ./configure just generates a makefile so we can run
-# `make dist`, which will give us a clean package of the kernel module 
-# source for dkms to compile. We test that it actually compiles in
-# the %%check section.
-%configure --with-linux-srcdir=%{ksrcdir}
-%{__make} dist
-popd
-
 pushd %{name}-user
 autoreconf -vif
 
@@ -327,17 +289,21 @@ autoreconf -vif
 
 %make_build
 
-pushd language/perl
+pushd language
 %if %{with perl}
+    %{__make} perl/Makefile.PL
+
+    pushd perl
     %{__perl} Makefile.PL INSTALLDIRS=vendor NO_PACKLIST=1 OPTIMIZE="%{optflags}"
     %make_build
+    popd
 %endif
-popd
 
-pushd language/python
+pushd python
 %{?with_python2:%py2_build}
 %{?with_python3:%py3_build}
 popd
+popd # language
 popd # %%{name}-user
 
 
@@ -352,9 +318,7 @@ install -d %{buildroot}%{_mandir}/{man1,man3,man5,man8,mann}
 # dkms package
 pushd %{name}-kernel
 install -d %{buildroot}%{_usrsrc}/%{name}-%{version}-%{release}
-%{__tar} -xf %{name}-kernel-%{version}.tar.gz \
-         -C %{buildroot}%{_usrsrc}/%{name}-%{version}-%{release} \
-         --strip-components=1 --preserve-permissions --preserve-order
+cp -Rfp . %{buildroot}%{_usrsrc}/%{name}-%{version}-%{release}
 install -p -m 0644 dkms.conf %{buildroot}%{_usrsrc}/%{name}-%{version}-%{release}
 popd
 
@@ -391,7 +355,11 @@ cp -fp %{SOURCE1} %{name}.xml
 xsltproc --param man.authors.section.enabled 0 \
          --param man.output.in.separate.dir 1 \
          --xinclude \
+%if 0%{?el8}
+         %{_datadir}/sgml/docbook/xsl-stylesheets/manpages/docbook.xsl \
+%else
          %{_datadir}/sgml/docbook/xsl-ns-stylesheets/manpages/docbook.xsl \
+%endif 
          %{name}.xml
 
 for mandir in man1 man3 man5 man8 ; do
@@ -429,7 +397,12 @@ install -p -m 0644 %{SOURCE2} %{buildroot}%{_udevrulesdir}
 
 # systemd config unit
 install -d %{buildroot}%{_unitdir}
-install -p -m 0644 %{SOURCE3} %{buildroot}%{_unitdir}
+sed -e 's|@libexecdir@|%{_libexecdir}|g' %{SOURCE3} > %{name}-config@.service
+install -p -m 0644 %{name}-config@.service %{buildroot}%{_unitdir}
+
+# systemd config script
+install -d %{buildroot}%{_libexecdir}
+install -p -m 0755 %{SOURCE5} %{buildroot}%{_libexecdir}
 popd # %%{name}-user
 
 # Cleanup
@@ -454,29 +427,11 @@ popd
 
 # Sanity check to make sure the kernel modules compile
 pushd %{name}-kernel
-%configure --with-linux-srcdir=%{ksrcdir}
-%make_build
+%make_build LINUX_SRCDIR=%{ksrcdir}
 popd
 
 
 # Post-install stuff
-
-# Default configurations
-%post defaults-agilent-82357a
-# on initial install only
-if [ $1 -eq 1 ] ; then
-    sed -i -E -e 's/board_type = "ni_(pci|usb_b)"/board_type = "agilent_82357a"/' \
-              -e 's/name = "(violet|ni-usb)"/name = "keysight-usb"/' \
-              %{_sysconfdir}/gpib.conf || :
-fi
-
-%post defaults-ni-gpib-usb
-# on initial install only
-if [ $1 -eq 1 ] ; then
-    sed -i -E -e 's/board_type = "(ni_pci|agilent_82357a)"/board_type = "ni_usb_b"/' \
-              -e 's/name = "(violet|keysight-usb)"/name = "ni-usb"/' \
-              %{_sysconfdir}/gpib.conf || :
-fi
 
 # systemd stuff
 %post
@@ -524,6 +479,7 @@ udevadm control --reload > /dev/null 2>&1 || :
 %attr(755,root,root) %{_bindir}/ibterm
 %attr(755,root,root) %{_bindir}/ibtest
 %attr(755,root,root) %{_sbindir}/gpib_config
+%attr(755,root,root) %{_libexecdir}/linux-gpib-config-systemd
 
 %{_mandir}/man1/*
 %{_mandir}/man5/*
@@ -535,12 +491,6 @@ udevadm control --reload > /dev/null 2>&1 || :
 
 %{_unitdir}/*.service
 %{_udevrulesdir}/*.rules
-
-%files defaults-agilent-82357a
-%config(noreplace) %{_sysconfdir}/gpib.conf
-
-%files defaults-ni-gpib-usb
-%config(noreplace) %{_sysconfdir}/gpib.conf
 
 %files -n dkms-%{name}
 
@@ -581,6 +531,16 @@ udevadm control --reload > /dev/null 2>&1 || :
 
 %{_libdir}/*-guile*.so
 %{guile_site}/*.scm
+%endif
+
+
+%if %{with php}
+%files -n php-%{name}
+%defattr(644,root,root,755)
+
+%license %{name}-user/COPYING
+
+%{php_extdir}/*.so
 %endif
 
 
@@ -647,7 +607,11 @@ udevadm control --reload > /dev/null 2>&1 || :
 
 
 %changelog
+* Tue Feb 5 2019 Colin Samples <colin-dot-samples-at-gmail-dot-com> - 4.2.1-1.20190107svn1809
+- Bump linux-gbib version, and update udev rules and systemd unit file to
+  account for changes in upstream. Add support for RHEL8 beta.
 * Fri Feb 1 2019 Colin Samples <colin-dot-samples-at-gmail-dot-com> - 4.1.0-2.20180529svn1753
 - Increment release number to fix F29 copr
 * Sat Jun 16 2018 Colin Samples <colin-dot-samples-at-gmail-dot-com> - 4.1.0-1.20180529svn1753
 - Initial release
+

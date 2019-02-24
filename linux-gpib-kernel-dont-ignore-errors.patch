@@ -1,14 +1,11 @@
---- old/linux-gpib-kernel/drivers/Makefile.am	2018-04-09 14:53:49.000000000 -0400
-+++ new/linux-gpib-kernel/drivers/Makefile.am	2018-06-11 19:18:56.370076564 -0400
-@@ -14,10 +14,8 @@
+--- old/linux-gpib-kernel/Makefile	2019-02-01 19:52:55.315980508 -0500
++++ new/linux-gpib-kernel/Makefile	2019-02-01 19:53:38.624435414 -0500
+@@ -5,7 +5,7 @@
+ VERBOSE ?= 0
  
- -include $(top_srcdir)/util/linux_flags/flags
- 
--#ignore errors from kernel's make modules in all-local, to avoid failure of make install
--#on nfs filesystem with root_squash
- all-local:
--	-$(MAKE) -C $(LINUX_SRCDIR) V=1 modules\
-+	$(MAKE) -C $(LINUX_SRCDIR) V=1 modules\
- 		CC="$(LINUX_CC) -I@abs_top_srcdir@ -I@abs_top_srcdir@/compat/include" \
+ all:
+-	-$(MAKE) -C $(LINUX_SRCDIR) V=$(VERBOSE) modules \
++	$(MAKE) -C $(LINUX_SRCDIR) V=$(VERBOSE) modules \
+ 		M="$(GPIB_SRCDIR)/drivers/gpib" \
+ 		GPIB_TOP_DIR=$(GPIB_SRCDIR) \
  		CONFIG_GPIB_ISA="$(ENABLE_ISA)" \
- 		SUBDIRS="$(GPIB_ABS_MODULE_SUBDIR)"
