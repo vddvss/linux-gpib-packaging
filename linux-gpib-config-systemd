@@ -29,6 +29,10 @@ case $1 in
         # https://superuser.com/questions/924683/passing-udev-environment-variables-to-systemd-service-execution
         eval $(udevadm info --query=env --export $1)
 
+        /usr/bin/logger --journald <<end
+MESSAGE_ID=a50ec012c08b44d28a3bdcfe92951e1a
+MESSAGE=Preparing to configure $ID_GPIB_BOARD_TYPE adapater with serial number $serial_from_sysfs on /dev/gbib$ID_GPIB_MINOR
+end
         /usr/sbin/gpib_config \
             --minor $ID_GPIB_MINOR \
             --board-type $ID_GPIB_BOARD_TYPE \

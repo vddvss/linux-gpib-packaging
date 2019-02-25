@@ -607,7 +607,9 @@ udevadm control --reload > /dev/null 2>&1 || :
 
 
 %changelog
-* Tue Feb 5 2019 Colin Samples <colin-dot-samples-at-gmail-dot-com> - 4.2.1-1.20190107svn1809
+* Sun Feb 24 2019 Colin Samples <colin-dot-samples-at-gmail-dot-com> - 4.2.0-2.20190107svn1809
+- Fix Agilent adapter configuation
+* Sun Feb 24 2019 Colin Samples <colin-dot-samples-at-gmail-dot-com> - 4.2.0-1.20190107svn1809
 - Bump linux-gbib version, and update udev rules and systemd unit file to
   account for changes in upstream. Add support for RHEL8 beta.
 * Fri Feb 1 2019 Colin Samples <colin-dot-samples-at-gmail-dot-com> - 4.1.0-2.20180529svn1753
