@@ -194,10 +194,16 @@ PHP bindings for %{name}.
 
 %if %{with perl}
 %package -n perl-%{perlname}
+# increment the minor release on the Perl package to address 
+# <https://sourceforge.net/p/linux-gpib/mailman/linux-gpib-general/thread/20190313094126.5fdaaf87%40duphy4.physics.drexel.edu/#msg36611641>
+# this should allow the us to just send out the update for the Perl package only
+# TODO: remove this and bump the overall release number on next update
+Release:        %{release}.1
 Summary:        Perl %{name} module
 
 Requires:       perl
 Requires:       %{name}%{?_isa} = %{version}-%{release}
+BuildRequires:  perl-generators
 BuildRequires:  perl-devel
 BuildRequires:  perl(ExtUtils::MakeMaker)
 BuildRequires:  perl(Test)
@@ -607,6 +613,8 @@ udevadm control --reload > /dev/null 2>&1 || :
 
 
 %changelog
+* Mon Mar 13 2019 Colin Samples <colin-dot-samples-at-gmail-dot-com> - 4.2.0-2.20190107svn1809.1
+- Fix RPM provides for Perl package
 * Sun Feb 24 2019 Colin Samples <colin-dot-samples-at-gmail-dot-com> - 4.2.0-2.20190107svn1809
 - Fix Agilent adapter configuation
 * Sun Feb 24 2019 Colin Samples <colin-dot-samples-at-gmail-dot-com> - 4.2.0-1.20190107svn1809
