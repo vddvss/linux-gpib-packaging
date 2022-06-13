@@ -1,5 +1,5 @@
---- old/linux-gpib-user/drivers/Makefile.am	2018-04-14 17:56:27.000000000 -0400
-+++ new/linux-gpib-user/drivers/Makefile.am	2018-05-05 23:41:28.649487570 -0400
+--- old/linux-gpib-user/drivers/Makefile.am	2022-06-06 16:20:34.496280123 -0400
++++ new/linux-gpib-user/drivers/Makefile.am	2022-06-06 16:23:01.190875289 -0400
 @@ -9,30 +9,6 @@
  
  install-data-hook: gpib.conf

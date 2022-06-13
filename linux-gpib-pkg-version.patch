@@ -1,0 +1,11 @@
+--- old/linux-gpib-user/lib/libgpib.pc.in	2022-06-06 16:20:34.313280640 -0400
++++ new/linux-gpib-user/lib/libgpib.pc.in	2022-06-13 11:15:13.212697357 -0400
+@@ -6,7 +6,7 @@
+ 
+ Name: libgpib
+ Description:  Linux-GPIB the IEEE-488 card support package and measurement suite for LINUX
+-Version: @GPIB_SO_VERSION@
++Version: 4.0.4
+ Requires: 
+ Libs: -lgpib
+ Cflags: -I${includedir}

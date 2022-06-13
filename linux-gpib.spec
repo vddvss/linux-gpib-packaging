@@ -16,8 +16,8 @@
 %bcond_without tcl
 
 
-%global svnrev 1809
-%global svndate 20190107
+%global svnrev 2020
+%global svndate 20200404
 
 %global _hardened_build 1
 
@@ -50,7 +50,7 @@
 %endif
 
 Name:           linux-gpib
-Version:        4.2.0
+Version:        4.3.4
 Release:        2.%{svndate}svn%{svnrev}%{?dist}
 Summary:        Linux GPIB (IEEE-488) userspace library and programs
 
@@ -77,6 +77,7 @@ Patch1:         %{name}-remove-usb-autotools.patch
 Patch2:         %{name}-fix-tcl-manpage.patch
 Patch3:         %{name}-kernel-dont-ignore-errors.patch
 Patch4:         %{name}-kernel-fix-epel-build.patch
+Patch5:         %{name}-pkg-version.patch
 
 Requires:       dkms-%{name}
 
@@ -185,7 +186,7 @@ Requires:       %{name}%{?_isa} = %{version}-%{release}
 Requires:       php(zend-abi) = %{php_zend_api}
 Requires:       php(api) = %{php_core_api}
 BuildRequires:  php-devel
-BuildRequires:  php-zendframework
+BuildRequires:  php-laminas-zendframework-bridge
 
 %description -n php-%{name}
 PHP bindings for %{name}.
@@ -265,8 +266,9 @@ HTML and PDF documentation for %{name}.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
+# %patch3 -p1
 %{?el7:%patch4 -p1}
+%patch5 -p1
 
 pushd %{name}-kernel
 sed -e 's/__VERSION_STRING/%{version}/g' %{SOURCE4} > dkms.conf
@@ -274,6 +276,7 @@ popd
 
 %build
 pushd %{name}-user
+touch ChangeLog
 autoreconf -vif
 
 # we make the docs, and the Perl and Python bindings in the spec, 
@@ -285,7 +288,8 @@ autoreconf -vif
     --disable-documentation \
     --disable-python-binding \
     --disable-perl-binding \
-    --disable-static
+    --disable-static \
+    YACC=bison
 
 %make_build
 
@@ -477,6 +481,7 @@ udevadm control --reload > /dev/null 2>&1 || :
 %doc %{name}-user/README
 
 %attr(755,root,root) %{_bindir}/ibterm
+%attr(755,root,root) %{_bindir}/findlisteners
 %attr(755,root,root) %{_bindir}/ibtest
 %attr(755,root,root) %{_sbindir}/gpib_config
 %attr(755,root,root) %{_libexecdir}/linux-gpib-config-systemd

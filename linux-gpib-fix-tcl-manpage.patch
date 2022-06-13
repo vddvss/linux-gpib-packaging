@@ -1,5 +1,5 @@
---- old/linux-gpib-user/language/tcl/gpib.n	2001-12-19 11:45:42.000000000 -0500
-+++ new/linux-gpib-user/language/tcl/gpib.n	2018-05-25 21:28:24.921013467 -0400
+--- old/linux-gpib-user/language/tcl/gpib.n	2022-06-06 16:20:34.400280394 -0400
++++ new/linux-gpib-user/language/tcl/gpib.n	2022-06-06 16:46:24.734332078 -0400
 @@ -1,3 +1,4 @@
 +.\"
  '\" Copyright 1990 Regents of the University of California
@@ -18,7 +18,7 @@
  .\"	End of indented unfilled display.
  .\"
 -'	# Heading for Sprite man pages
-+.\" Heading for Sprite man pages
++.\"	# Heading for Sprite man pages
  .de HS
  .if '\\$2'cmds'       .TH \\$1 1 \\$3 \\$4
  .if '\\$2'lib'        .TH \\$1 3 \\$3 \\$4
@@ -27,7 +27,7 @@
  .ad b
  ..
 -'	# Start an argument description
-+.\" Start an argument description
++.\"	# Start an argument description
  .de AP
  .ie !"\\$4"" .TP \\$4
  .el \{\
@@ -36,7 +36,7 @@
  .\}
  ..
 -'	# define tabbing values for .AP
-+.\" define tabbing values for .AP
++.\"	# define tabbing values for .AP
  .de AS
  .nr )A 10n
  .if !"\\$1"" .nr )A \\w'\\$1'u+3n
@@ -47,9 +47,9 @@
 -'	# BS - start boxed text
 -'	# ^y = starting y location
 -'	# ^b = 1
-+.\" BS - start boxed text
-+.\" ^y = starting y location
-+.\" ^b = 1
++.\"	# BS - start boxed text
++.\"	# ^y = starting y location
++.\"	# ^b = 1
  .de BS
  .br
  .mk ^y
@@ -58,7 +58,7 @@
  .if n .fi
  ..
 -'	# BE - end boxed text (draw box now)
-+.\" BE - end boxed text (draw box now)
++.\"	# BE - end boxed text (draw box now)
  .de BE
  .nf
  .ti 0
@@ -69,16 +69,16 @@
 -'	# VS - start vertical sidebar
 -'	# ^Y = starting y location
 -'	# ^v = 1 (for troff;  for nroff this doesn't matter)
-+.\" VS - start vertical sidebar
-+.\" ^Y = starting y location
-+.\" ^v = 1 (for troff;  for nroff this doesn't matter)
++.\"	# VS - start vertical sidebar
++.\"	# ^Y = starting y location
++.\"	# ^v = 1 (for troff;  for nroff this doesn't matter)
  .de VS
  .mk ^Y
  .ie n 'mc \s12\(br\s0
  .el .nr ^v 1u
  ..
 -'	# VE - end of vertical sidebar
-+.\" VE - end of vertical sidebar
++.\"	# VE - end of vertical sidebar
  .de VE
  .ie n 'mc
  .el \{\
@@ -89,9 +89,9 @@
 -'	# Special macro to handle page bottom:  finish off current
 -'	# box/sidebar if in box/sidebar mode, then invoked standard
 -'	# page bottom macro.
-+.\" Special macro to handle page bottom:  finish off current
-+.\" box/sidebar if in box/sidebar mode, then invoked standard
-+.\" page bottom macro.
++.\"	# Special macro to handle page bottom:  finish off current
++.\"	# box/sidebar if in box/sidebar mode, then invoked standard
++.\"	# page bottom macro.
  .de ^B
  .ev 2
  'ti 0
@@ -100,14 +100,14 @@
  .\}
  ..
 -'	# DS - begin display
-+.\" DS - begin display
++.\"	# DS - begin display
  .de DS
  .RS
  .nf
  .sp
  ..
 -'	# DE - end display
-+.\" DE - end display
++.\"	# DE - end display
  .de DE
  .fi
  .RE
