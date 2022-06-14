@@ -51,7 +51,7 @@
 
 Name:           linux-gpib
 Version:        4.3.4
-Release:        2.%{svndate}svn%{svnrev}%{?dist}
+Release:        3.%{svndate}svn%{svnrev}%{?dist}
 Summary:        Linux GPIB (IEEE-488) userspace library and programs
 
 License:        GPLv2+
@@ -95,6 +95,8 @@ BuildRequires:  flex
 BuildRequires:  bison
 
 BuildRequires:  libxslt
+BuildRequires:  python3-setuptools
+BuildRequires:  perl
 %if 0%{?el8}
 BuildRequires:  docbook-style-xsl
 %else
