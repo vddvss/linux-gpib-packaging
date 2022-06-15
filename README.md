@@ -2,6 +2,8 @@ This repo contains RPM spec files and patches for the
 [linux-gpib project](https://linux-gpib.sourceforge.io/) drivers and library for
 GPIB (IEEE-488) adapters.
 
+It has been updated to the SVN 2020 version from the ling-gpib project (https://sourceforge.net/p/linux-gpib/code/HEAD/tree/)
+
 These are targeted at Fedora and RHEL/CentOS 7, but they can probably be made to
 work with SUSE or other RPM distros, though I haven't bothered to put in all of
 the logic to do that. The package also tries to adhere to the
