@@ -16,8 +16,8 @@
 %bcond_without tcl
 
 
-%global svnrev 2049
-%global svndate 20230407
+%global svnrev 2050
+%global svndate 20230421
 
 %global _hardened_build 1
 
