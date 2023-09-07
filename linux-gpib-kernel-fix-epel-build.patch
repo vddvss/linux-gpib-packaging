@@ -1,20 +1,10 @@
---- old/linux-gpib-kernel/Makefile	2019-02-01 19:52:55.315980508 -0500
-+++ new/linux-gpib-kernel/Makefile	2019-02-11 09:52:21.342963668 -0500
+--- old/linux-gpib-kernel/Makefile	2022-06-06 16:20:34.214280920 -0400
++++ new/linux-gpib-kernel/Makefile	2022-06-06 16:52:24.232405912 -0400
 @@ -1,5 +1,7 @@
  # Makefile
  
 +# In the RHEL7 kernel, dev_of_node is always defined
 +HAVE_DEV_OF_NODE = 1
- GPIB_SRCDIR ?= $$PWD
+ GPIB_SRCDIR ?= $(CURDIR)
  LINUX_SRCDIR ?= /lib/modules/`uname -r`/build
  VERBOSE ?= 0
-
---- old/linux-gpib-kernel/drivers/gpib/sys/osfuncs.c	2019-02-01 19:52:55.320980445 -0500
-+++ new/linux-gpib-kernel/drivers/gpib/sys/osfuncs.c	2019-02-11 10:42:37.145766921 -0500
-@@ -21,6 +21,7 @@
- #include <linux/fcntl.h>
- #include <linux/kmod.h>
- #include <linux/string.h>
-+#include <linux/uaccess.h>
- #include <linux/vmalloc.h>
- #include <linux/version.h>
