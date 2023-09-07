@@ -16,8 +16,8 @@
 %bcond_without tcl
 
 
-%global svnrev 2050
-%global svndate 20230421
+%global svnrev r2059
+%global svndate 20230719
 
 %global _hardened_build 1
 
@@ -50,8 +50,8 @@
 %endif
 
 Name:           linux-gpib
-Version:        4.3.5
-Release:        9.%{svndate}svn%{svnrev}%{?dist}
+Version:        4.3.6
+Release:        1.%{svndate}svn%{svnrev}%{?dist}
 Summary:        Linux GPIB (IEEE-488) userspace library and programs
 
 License:        GPLv2+
