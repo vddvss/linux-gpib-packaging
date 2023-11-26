@@ -16,8 +16,8 @@
 %bcond_without tcl
 
 
-%global svnrev r2059
-%global svndate 20230719
+%global svnrev r2069
+%global svndate 20231125
 
 %global _hardened_build 1
 
@@ -51,7 +51,7 @@
 
 Name:           linux-gpib
 Version:        4.3.6
-Release:        1.%{svndate}svn%{svnrev}%{?dist}
+Release:        8.%{svndate}svn%{svnrev}%{?dist}
 Summary:        Linux GPIB (IEEE-488) userspace library and programs
 
 License:        GPLv2+
@@ -188,7 +188,7 @@ Requires:       %{name}%{?_isa} = %{version}-%{release}
 Requires:       php(zend-abi) = %{php_zend_api}
 Requires:       php(api) = %{php_core_api}
 BuildRequires:  php-devel
-BuildRequires:  php-laminas-zendframework-bridge
+# BuildRequires:  php-laminas-zendframework-bridge
 
 %description -n php-%{name}
 PHP bindings for %{name}.
@@ -265,12 +265,12 @@ HTML and PDF documentation for %{name}.
 %prep
 %setup -q -n %{name}-code-%{svnrev}-trunk
 
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-# %patch3 -p1
-%{?el7:%patch4 -p1}
-%patch5 -p1
+%patch 0 -p1
+%patch 1 -p1
+%patch 2 -p1
+# %patch 3 -p1
+%{?el7:%patch 4 -p1}
+%patch 5 -p1
 
 pushd %{name}-kernel
 sed -e 's/__VERSION_STRING/%{version}/g' %{SOURCE4} > dkms.conf
