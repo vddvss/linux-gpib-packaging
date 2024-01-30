@@ -16,8 +16,8 @@
 %bcond_without tcl
 
 
-%global svnrev r2069
-%global svndate 20231125
+%global svnrev r2081
+%global svndate 20240116
 
 %global _hardened_build 1
 
@@ -51,7 +51,7 @@
 
 Name:           linux-gpib
 Version:        4.3.6
-Release:        8.%{svndate}svn%{svnrev}%{?dist}
+Release:        13.%{svndate}svn%{svnrev}%{?dist}
 Summary:        Linux GPIB (IEEE-488) userspace library and programs
 
 License:        GPLv2+
@@ -459,7 +459,51 @@ popd
 %{?with_tcl:%ldconfig_scriptlets -n tcl-%{name}}
 
 # dkms
-# Adapted from <https://github.com/negativo17/dkms-nvidia/blob/master/dkms-nvidia.spec>
+# Adapted from https://github.com/openzfs/zfs/blob/master/rpm/generic/zfs-dkms.spec.in
+
+%pre -n dkms-%{name}
+echo "Running pre installation script: $0. Parameters: $*"
+# We don't want any other versions lingering around in dkms.
+# Tests with 'dnf' showed that in case of reinstall, or upgrade
+#  the preun scriptlet removed the version we are trying to install.
+# Because of this, find all zfs dkms sources in /var/lib/dkms and
+#  remove them, if we find a matching version in dkms.
+
+dkms_root=/var/lib/dkms
+if [ -d ${dkms_root}/%{name} ]; then
+    cd ${dkms_root}/%{name}
+    for x in [[:digit:]]*; do
+        [ -d "$x" ] || continue
+        otherver="$x"
+        opath="${dkms_root}/%{name}/${otherver}"
+        if [ "$otherver" != %{version}-%{release} ]; then
+            # This is a workaround for a broken 'dkms status', we caused in a previous version.
+            # One day it might be not needed anymore, but it does not hurt to keep it.
+            if dkms status -m %{name} -v "$otherver" 2>&1 | grep "${opath}/source/dkms.conf does not exist"
+            then
+                echo "ERROR: dkms status is broken!" >&2
+                if [ -L "${opath}/source" -a ! -d "${opath}/source" ]
+                then
+                    echo "Trying to fix it by removing the symlink: ${opath}/source" >&2
+                    echo "You should manually remove ${opath}" >&2
+                    rm -f "${opath}/source" || echo "Removal failed!" >&2
+                fi
+            fi
+            if [ `dkms status -m %{name} -v "$otherver" | grep -c %{name}` -gt 0 ]; then
+                echo "Removing old %{name} dkms modules version $otherver from all kernels."
+                dkms remove -m %{name} -v "$otherver" --all ||:
+            fi
+        fi
+    done
+    cd ${dkms_root}
+fi
+
+# Uninstall this version of dkms-linux-gpib dkms modules before installation of the package.
+if [ `dkms status -m %{name} -v %{version} | grep -c %{name}` -gt 0 ]; then
+    echo "Removing %{name} dkms modules version %{version}-%{release} from all kernels."
+    dkms remove -m %{name} -v %{version}-%{release} --all ||:
+fi
+
 %post -n dkms-%{name}
 dkms add -m %{name} -v %{version}-%{release} -q --rpm_safe_upgrade || :
 # Rebuild and make available for the currently running kernel
@@ -470,11 +514,34 @@ dkms install -m %{name} -v %{version}-%{release} -q --force || :
 udevadm control --reload > /dev/null 2>&1 || :
 
 %preun -n dkms-%{name}
-# Remove all versions from DKMS registry
-dkms remove -m %{name} -v %{version}-%{release} -q --all --rpm_safe_upgrade || :
-%{?ldconfig}
-udevadm control --reload > /dev/null 2>&1 || :
+dkms_root="/var/lib/dkms/%{name}/%{version}-%{release}"
+echo "Running pre uninstall script: $0. Parameters: $*"
+# In case of upgrade we do nothing. See above comment in pre hook.
+if [ "$1" = "1" -o "$1" = "upgrade" ] ; then
+    echo "This is an upgrade. Skipping pre uninstall action."
+    exit 0
+fi
 
+# Check if we uninstall the package. In that case remove the dkms modules.
+# '0' is the value for the first parameter for rpm packages.
+# 'remove' or 'purge' are the possible names for deb packages.
+if [ "$1" = "0" -o "$1" = "remove" -o "$1" = "purge" ] ; then
+    if [ `dkms status -m %{name} -v %{version}-%{release} | grep -c %{name}` -gt 0 ]; then
+        echo "Removing %{name} dkms modules version %{version}-%{release} from all kernels."
+        dkms remove -m %{name} -v %{version}-%{release} --all --rpm_safe_upgrade && exit 0
+    fi
+    # If removing the modules failed, it might be because of the broken 'dkms status'.
+    if dkms status -m %{name} -v %{version} 2>&1 | grep "${dkms_root}/source/dkms.conf does not exist"
+    then
+        echo "ERROR: dkms status is broken!" >&2
+        echo "You should manually remove ${dkms_root}" >&2
+        echo "WARNING: installed modules in /lib/modules/`uname -r`/extra could not be removed automatically!" >&2
+    fi
+    %{?ldconfig}
+    udevadm control --reload > /dev/null 2>&1 || :
+else
+    echo "Script parameter $1 did not match any removal condition."
+fi
 
 %files
 %defattr(644,root,root,755)
@@ -614,6 +681,16 @@ udevadm control --reload > /dev/null 2>&1 || :
 
 
 %changelog
+* Tue Jan 16 2024 Michael Katzmann <vk2bea-at-gmail-dot-com> - svnr2079
+- Preliminary fix for CMPL being set incorrectly bug #87
+* Sat Jan 13 2024 Michael Katzmann <vk2bea-at-gmail-dot-com> - svnr2079
+- fix for timeout on async reads/writes (ticket #87)
+* Fri Dec 15 2023 Michael Katzmann <vk2bea-at-gmail-dot-com> - 4.3.6-11.20231215svnr2075
+- Upstream fix for SRQ problem with NEC7210  (ticket #86)
+* Mon Dec 11 2023 Michael Katzmann <vk2bea-at-gmail-dot-com> - 4.3.6-10.20231211svnr2073
+- Upstream fix for SRQ problem with Agilent 82357B (ticket #86)
+* Sat Dec 9 2023 Michael Katzmann <vk2bea-at-gmail-dot-com> - 4.3.6-9.20231130svnr2070
+- Fix removal of old modules which sometimes cause installation failures
 * Sun Feb 24 2019 Colin Samples <colin-dot-samples-at-gmail-dot-com> - 4.2.0-2.20190107svn1809
 - Fix Agilent adapter configuation
 * Sun Feb 24 2019 Colin Samples <colin-dot-samples-at-gmail-dot-com> - 4.2.0-1.20190107svn1809
