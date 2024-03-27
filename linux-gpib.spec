@@ -16,8 +16,8 @@
 %bcond_without tcl
 
 
-%global svnrev r2081
-%global svndate 20240116
+%global svnrev r2088
+%global svndate 20240327
 
 %global _hardened_build 1
 
@@ -50,8 +50,8 @@
 %endif
 
 Name:           linux-gpib
-Version:        4.3.6
-Release:        13.%{svndate}svn%{svnrev}%{?dist}
+Version:        4.3.7
+Release:        1.%{svndate}svn%{svnrev}%{?dist}
 Summary:        Linux GPIB (IEEE-488) userspace library and programs
 
 License:        GPLv2+
@@ -78,6 +78,7 @@ Patch2:         %{name}-fix-tcl-manpage.patch
 Patch3:         %{name}-kernel-dont-ignore-errors.patch
 Patch4:         %{name}-kernel-fix-epel-build.patch
 Patch5:         %{name}-pkg-version.patch
+Patch6:         %{name}-fix-tcl-ibcmds.patch
 
 Requires:       dkms-%{name}
 
@@ -271,6 +272,7 @@ HTML and PDF documentation for %{name}.
 # %patch 3 -p1
 %{?el7:%patch 4 -p1}
 %patch 5 -p1
+%patch 6 -p1
 
 pushd %{name}-kernel
 sed -e 's/__VERSION_STRING/%{version}/g' %{SOURCE4} > dkms.conf
@@ -291,7 +293,7 @@ autoreconf -vif
     --disable-python-binding \
     --disable-perl-binding \
     --disable-static \
-    YACC=bison
+    YACC=bison 
 
 %make_build
 
@@ -586,6 +588,7 @@ fi
 
 %{_includedir}/gpib/gpib_user.h
 %{_includedir}/gpib/ib.h
+%{_includedir}/gpib/gpib_version.h
 %{_libdir}/pkgconfig/libgpib.pc
 %{_libdir}/libgpib.so
 
@@ -681,6 +684,12 @@ fi
 
 
 %changelog
+* Wed Mar 27 2024 Michael Katzmann <vk2bea-at-gmail-dot-com> - svnr2088
+- r2088 Fix for Fedora 40
+* Sat Mar 02 2024 Michael Katzmann <vk2bea-at-gmail-dot-com> - svnr2085
+- r2085 Fix ibonl(ud,1) for ud a board descriptor
+* Tue Feb 20 2024 Michael Katzmann <vk2bea-at-gmail-dot-com> - svnr2079
+- r2084
 * Tue Jan 16 2024 Michael Katzmann <vk2bea-at-gmail-dot-com> - svnr2079
 - Preliminary fix for CMPL being set incorrectly bug #87
 * Sat Jan 13 2024 Michael Katzmann <vk2bea-at-gmail-dot-com> - svnr2079

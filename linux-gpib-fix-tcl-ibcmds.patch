@@ -1,0 +1,159 @@
+diff -Naur linux-gpib-code-r2088-trunk/linux-gpib-user/configure.ac linux-gpib-code-r2088-trunk.MK/linux-gpib-user/configure.ac
+--- linux-gpib-code-r2088-trunk/linux-gpib-user/configure.ac	2024-01-14 07:38:53.000000000 -0500
++++ linux-gpib-code-r2088-trunk.MK/linux-gpib-user/configure.ac	2024-03-27 15:08:03.971818082 -0400
+@@ -145,7 +145,7 @@
+ 
+ if test "$PHP_CONFIG" != "no"; then
+ SAVE_CPPFLAGS=$CPPFLAGS
+-CPPFLAGS="$CPPFLAGS $($PHP_CONFIG --includes)"
++CPPFLAGS="$CPPFLAGS $($PHP_CONFIG --includes) -D_GNU_SOURCE"
+ AC_CHECK_HEADER([php.h],[],[BIND_PHP="no";AC_MSG_NOTICE([PHP headers not found, disabling PHP binding])])
+ CPPFLAGS=$SAVE_CPPFLAGS
+ fi
+diff -Naur linux-gpib-code-r2088-trunk/linux-gpib-user/language/tcl/ibCmds.c linux-gpib-code-r2088-trunk.MK/linux-gpib-user/language/tcl/ibCmds.c
+--- linux-gpib-code-r2088-trunk/linux-gpib-user/language/tcl/ibCmds.c	2005-10-06 18:48:15.000000000 -0400
++++ linux-gpib-code-r2088-trunk.MK/linux-gpib-user/language/tcl/ibCmds.c	2024-03-27 15:15:21.227517387 -0400
+@@ -14,7 +14,7 @@
+ extern int gpibCmd _ANSI_ARGS_(( ClientData clientData,
+ 			      Tcl_Interp *interp,
+ 			       int argc,
+-			       char *argv[]
++			       const char *argv[]
+ 			       ));
+ 
+     Tcl_CreateCommand(interp,"gpib",gpibCmd,
+@@ -26,7 +26,7 @@
+ 
+ 
+ /**********************************************************************/
+-int ibWrite _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,char *argv[])){
++int ibWrite _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc, const char *argv[])){
+ 
+   if( argc != 3 ){
+     Tcl_SetResult(interp, "Error: write <dev> <string> ", TCL_STATIC);
+@@ -41,7 +41,7 @@
+ 
+ }
+ /**********************************************************************/
+-int ibCmd _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,char *argv[])){
++int ibCmd _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,const char*argv[])){
+ 
+   if( argc != 3 ){
+     Tcl_SetResult(interp, "Error: cmd <dev> <string> ", TCL_STATIC);
+@@ -56,7 +56,7 @@
+ 
+ }
+ /**********************************************************************/
+-int ibRead  _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,char *argv[])){
++int ibRead  _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,const char*argv[])){
+ 
+ 
+   char *buf;
+@@ -100,7 +100,7 @@
+ 
+ /**********************************************************************/
+ 
+-int ibDev _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc, char *argv[]))
++int ibDev _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc, const char *argv[]))
+ {
+ 	int dev;
+ 	char res[10];
+@@ -132,7 +132,7 @@
+ }
+ /**********************************************************************/
+ 
+-int ibFind  _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,char *argv[]))
++int ibFind  _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,const char*argv[]))
+ {
+ 	int dev;
+ 	char res[10];
+@@ -157,7 +157,7 @@
+ 
+ /**********************************************************************/
+ 
+-int ibSre   _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,char *argv[])){
++int ibSre   _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,const char*argv[])){
+ 
+   if( argc != 3 ){
+     Tcl_SetResult(interp, "Error: ibsre <bool> ", TCL_STATIC);
+@@ -172,7 +172,7 @@
+ }
+ /**********************************************************************/
+ 
+-int ibSic   _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,char *argv[])){
++int ibSic   _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,const char*argv[])){
+ 
+   if( argc != 2 ){
+     Tcl_SetResult(interp, "Error: sic <dev> ", TCL_STATIC);
+@@ -187,7 +187,7 @@
+ 
+ }
+ /**********************************************************************/
+-int ibClr   _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,char *argv[])){
++int ibClr   _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,const char*argv[])){
+ 
+   if( argc != 2 ){
+     Tcl_SetResult(interp, "Error: clear <dev> ", TCL_STATIC);
+@@ -201,7 +201,7 @@
+      return TCL_OK;
+ }
+ /**********************************************************************/
+-int ibOnl   _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,char *argv[])){
++int ibOnl   _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,const char*argv[])){
+ 
+   if( argc != 3 ){
+     Tcl_SetResult(interp, "Error: onl <dev> <val>", TCL_STATIC);
+@@ -216,7 +216,7 @@
+ }
+ 
+ /**********************************************************************/
+-int ibWait   _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,char *argv[])){
++int ibWait   _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,const char*argv[])){
+ 
+   int mask=0;
+   register int i;
+@@ -249,7 +249,7 @@
+      return TCL_OK;
+ }
+ /**********************************************************************/
+-int ibClose  _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,char *argv[])){
++int ibClose  _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,const char*argv[])){
+ 
+ 
+   if( argc < 2){
+@@ -265,7 +265,7 @@
+ }
+ 
+ /**********************************************************************/
+-int ibRsp  _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,char *argv[])){
++int ibRsp  _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,const char*argv[])){
+ 
+ 
+   char spb;
+@@ -285,7 +285,7 @@
+   return TCL_OK;
+ }
+ /**********************************************************************/
+-int ibTrg  _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,char *argv[])){
++int ibTrg  _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,const char*argv[])){
+ 
+   if( argc < 2){
+     Tcl_SetResult(interp, "Error: trg <dev> ", TCL_STATIC);
+@@ -299,7 +299,7 @@
+   return TCL_OK;
+ }
+ /**********************************************************************/
+-int ibRsv  _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,char *argv[])){
++int ibRsv  _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, int argc,const char*argv[])){
+ 
+   if( argc < 2){
+     Tcl_SetResult(interp, "Error: rsv <dev> <val>", TCL_STATIC);
+@@ -376,7 +376,7 @@
+ int gpibCmd _ANSI_ARGS_(( ClientData clientData,
+ 			      Tcl_Interp *interp,
+ 			       int argc,
+-			       char *argv[]
++			       const char *argv[]
+ 			       ))
+ {
+  
